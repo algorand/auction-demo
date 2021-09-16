@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Compiled smart contracts
+*.teal
+*.teal.tok

@@ -1,4 +1,4 @@
-git+git://github.com/algorand/pyteal@inner-txns#egg=pyteal
+git+git://github.com/algorand/pyteal@81275c5#egg=pyteal
 git+git://github.com/algorand/py-algorand-sdk@tealv5#egg=py-algorand-sdk
 mypy
 pytest
