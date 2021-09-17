@@ -21,11 +21,13 @@ def approval_program():
         App.globalPut(end_time_key, on_create_end_time),
         App.globalPut(reserve_amount_key, Btoi(Txn.application_args[4])),
         App.globalPut(min_bid_increment_key, Btoi(Txn.application_args[5])),
-        Assert(And(
-            Global.latest_timestamp() < on_create_start_time,
-            on_create_start_time < on_create_end_time
-        )),
-        Approve()
+        Assert(
+            And(
+                Global.latest_timestamp() < on_create_start_time,
+                on_create_start_time < on_create_end_time,
+            )
+        ),
+        Approve(),
     )
 
     on_call = Seq(
@@ -60,6 +62,7 @@ def approval_program():
 
 def clear_state_program():
     return Approve()
+
 
 if __name__ == "__main__":
     with open("auction_approval.teal", "w") as f:

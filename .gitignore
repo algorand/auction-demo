@@ -131,3 +131,5 @@ dmypy.json
 # Compiled smart contracts
 *.teal
 *.teal.tok
+
+sandbox/
