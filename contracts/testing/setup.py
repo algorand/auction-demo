@@ -24,7 +24,7 @@ def getKmdClient() -> KMDClient:
 KMD_WALLET_NAME = "unencrypted-default-wallet"
 KMD_WALLET_PASSWORD = ""
 
-kmdAccounts: Optional[Account] = None
+kmdAccounts: Optional[List[Account]] = None
 
 
 def getGenesisAccounts() -> List[Account]:

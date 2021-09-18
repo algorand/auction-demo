@@ -39,7 +39,7 @@ def test_create():
 
     approval, clear = getContracts(client)
 
-    globalSchema = transaction.StateSchema(num_uints=8, num_byte_slices=1)
+    globalSchema = transaction.StateSchema(num_uints=7, num_byte_slices=2)
     localSchema = transaction.StateSchema(num_uints=0, num_byte_slices=0)
 
     _, seller_addr = account.generate_account()
