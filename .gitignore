@@ -132,4 +132,4 @@ dmypy.json
 *.teal
 *.teal.tok
 
-sandbox/
+_sandbox/

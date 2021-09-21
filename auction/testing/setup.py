@@ -3,7 +3,7 @@ from typing import Optional, List
 from algosdk.v2client.algod import AlgodClient
 from algosdk.kmd import KMDClient
 
-from .account import Account
+from ..account import Account
 
 ALGOD_ADDRESS = "http://localhost:4001"
 ALGOD_TOKEN = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
