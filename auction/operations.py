@@ -20,6 +20,15 @@ CLEAR_STATE_PROGRAM = b""
 
 
 def getContracts(client: AlgodClient) -> Tuple[bytes, bytes]:
+    """Get the compiled TEAL contracts for the auction.
+
+    Args:
+        client: An algod client that has the ability to compile TEAL programs.
+
+    Returns:
+        A tuple of 2 byte strings. The first is the approval program, and the
+        second is the clear state program.
+    """
     global APPROVAL_PROGRAM
     global CLEAR_STATE_PROGRAM
 
@@ -40,6 +49,28 @@ def createAuctionApp(
     reserve: int,
     minBidIncrement: int,
 ) -> int:
+    """Create a new auction.
+
+    Args:
+        client: An algod client.
+        sender: The account that will create the auction application.
+        seller: The address of the seller that currently holds the NFT being
+            auctioned.
+        nftID: The ID of the NFT being auctioned.
+        startTime: A UNIX timestamp representing the start time of the auction.
+            This must be greater than the current UNIX timestamp.
+        endTime: A UNIX timestamp representing the end time of the auction. This
+            must be greater than startTime.
+        reserve: The reserve amount of the auction. If the auction ends without
+            a bid that is equal to or greater than this amount, the auction will
+            fail, meaning the bid amount will be refunded to the lead bidder and
+            the NFT will return to the seller.
+        minBidIncrement: The minimum different required between a new bid and
+            the current leading bid.
+
+    Returns:
+        The ID of the newly created auction app.
+    """
     approval, clear = getContracts(client)
 
     globalSchema = transaction.StateSchema(num_uints=7, num_byte_slices=2)
@@ -82,6 +113,25 @@ def setupAuctionApp(
     nftID: int,
     nftAmount: int,
 ) -> None:
+    """Finish setting up an auction.
+
+    This operation funds the app auction escrow account, opts that account into
+    the NFT, and sends the NFT to the escrow account, all in one atomic
+    transaction group. The auction must not have started yet.
+
+    The escrow account requires a total of 0.203 Algos for funding. See the code
+    below for a breakdown of this amount.
+
+    Args:
+        client: An algod client.
+        appID: The app ID of the auction.
+        funder: The account providing the funding for the escrow account.
+        nftHolder: The account holding the NFT.
+        nftID: The NFT ID.
+        nftAmount: The NFT amount being auctioned. Some NFTs has a total supply
+            of 1, while others are fractional NFTs with a greater total supply,
+            so use a value that makes sense for the NFT being auctioned.
+    """
     appAddr = getAppAddress(appID)
 
     suggestedParams = client.suggested_params()
@@ -131,6 +181,14 @@ def setupAuctionApp(
 
 
 def placeBid(client: AlgodClient, appID: int, bidder: Account, bidAmount: int) -> None:
+    """Place a bid on an active auction.
+
+    Args:
+        client: An Algod client.
+        appID: The app ID of the auction.
+        bidder: The account providing the bid.
+        bidAmount: The amount of the bid.
+    """
     appAddr = getAppAddress(appID)
     appGlobalState = getAppGlobalState(client, appID)
 
@@ -173,6 +231,23 @@ def placeBid(client: AlgodClient, appID: int, bidder: Account, bidAmount: int) -
 
 
 def closeAuction(client: AlgodClient, appID: int, closer: Account):
+    """Close an auction.
+
+    This action can only happen before an auction has begun, in which case it is
+    cancelled, or after an auction has ended.
+
+    If called after the auction has ended and the auction was successful, the
+    NFT is transferred to the winning bidder and the auction proceeds are
+    transferred to the seller. If the auction was not successful, the NFT and
+    all funds are transferred to the seller.
+
+    Args:
+        client: An Algod client.
+        appID: The app ID of the auction.
+        closer: The account initiating the close transaction. This must be
+            either the seller or auction creator if you wish to close the
+            auction before it starts. Otherwise, this can be any account.
+    """
     appGlobalState = getAppGlobalState(client, appID)
 
     nftID = appGlobalState[b"nft_id"]

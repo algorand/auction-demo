@@ -2,6 +2,11 @@
 
 This demo is an on-chain NFT auction using smart contracts on the Algorand blockchain.
 
+## Usage
+
+The file `auction/operations.py` provides a set of functions that can be used to create and interact
+with auctions. See that file for documentation.
+
 ## Development Setup
 
 This repo requires Python 3.6 or higher. We recommend you use a Python virtual environment to install
