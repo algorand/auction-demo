@@ -35,34 +35,16 @@ def approval_program():
         )
 
     @Subroutine(TealType.none)
-    def repayPreviousLeadBidder(
-        prevLeadBidder: Expr, prevLeadBidAmount: Expr, payToEscrow: Expr
-    ) -> Expr:
-        # problem: if every bid must include the previous lead bid account
-        # in the foreign assets array, denial of service can happen for popular
-        # auctions (if the lead bidder changes after a bid has been sent to the
-        # network, that bid can no longer be accepted)
-        # Solution: If payToEscrow is true, send the funds to a separate escrow account
-        # that is responsible for paying back the previous lead bid account.
-        # TODO: use a LogicSig template to do this, meaning we'd fill it out on
-        # the fly here and the previous bidder would be directed to a new escrow
-        # account every time. In order to communicate the escrow account and amount
-        # to the previous bidder, we will log all the information needed
+    def repayPreviousLeadBidder(prevLeadBidder: Expr, prevLeadBidAmount: Expr) -> Expr:
         return Seq(
             InnerTxnBuilder.Begin(),
             InnerTxnBuilder.SetFields(
                 {
                     TxnField.type_enum: TxnType.Payment,
                     TxnField.amount: prevLeadBidAmount - Global.min_txn_fee(),
+                    TxnField.receiver: prevLeadBidder,
                 }
             ),
-            If(payToEscrow)
-            .Then(
-                # TODO: Create an escrow account and send the funds there instead
-                # Also, log the event and all necessary details
-                Err()
-            )
-            .Else(InnerTxnBuilder.SetField(TxnField.receiver, prevLeadBidder)),
             InnerTxnBuilder.Submit(),
         )
 
@@ -134,6 +116,7 @@ def approval_program():
                 Global.latest_timestamp() < App.globalGet(end_time_key),
                 # the actual bid payment is before the app call
                 Gtxn[on_bid_txn_index].type_enum() == TxnType.Payment,
+                Gtxn[on_bid_txn_index].sender() == Txn.sender(),
                 Gtxn[on_bid_txn_index].receiver()
                 == Global.current_application_address(),
                 Gtxn[on_bid_txn_index].amount() >= Global.min_txn_fee(),
@@ -148,7 +131,6 @@ def approval_program():
                     repayPreviousLeadBidder(
                         App.globalGet(lead_bid_account_key),
                         App.globalGet(lead_bid_amount_key),
-                        Int(1),
                     )
                 ),
                 App.globalPut(lead_bid_amount_key, Gtxn[on_bid_txn_index].amount()),
@@ -170,14 +152,12 @@ def approval_program():
         If(Global.latest_timestamp() < App.globalGet(start_time_key)).Then(
             Seq(
                 # the auction has not yet started, it's ok to delete
-                If(
+                Assert(
                     Or(
-                        Txn.sender() != App.globalGet(seller_key),
-                        Txn.sender() != Global.creator_address(),
+                        # sender must either be the seller or the auction creator
+                        Txn.sender() == App.globalGet(seller_key),
+                        Txn.sender() == Global.creator_address(),
                     )
-                ).Then(
-                    # sender must either be the seller or the auction creator
-                    Reject()
                 ),
                 # if the auction contract account has opted into the nft, close it out
                 closeNFTTo(App.globalGet(nft_id_key), App.globalGet(seller_key)),
@@ -212,13 +192,12 @@ def approval_program():
                             repayPreviousLeadBidder(
                                 App.globalGet(lead_bid_account_key),
                                 App.globalGet(lead_bid_amount_key),
-                                Int(0),
                             ),
                         )
                     )
                 )
                 .Else(
-                    # the auction was not successful because bids were placed: return the nft to the seller
+                    # the auction was not successful because no bids were placed: return the nft to the seller
                     closeNFTTo(App.globalGet(nft_id_key), App.globalGet(seller_key))
                 ),
                 # send remaining funds to the seller
