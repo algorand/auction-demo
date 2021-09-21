@@ -23,7 +23,9 @@ Install dependencies:
 * `pip install -r requirements.txt`
 
 Run tests:
+* First, start an instance of [sandbox](https://github.com/algorand/sandbox) (requires Docker): `./sandbox up nightly`
 * `pytest`
+* When finished, the sandbox can be stopped with `./sandbox down`
 
 Format code:
 * `black .`
