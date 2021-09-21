@@ -181,8 +181,8 @@ def test_first_bid():
     bidder = getTemporaryAccount(client)
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime:
-        sleep(startTime - lastRoundTime)
+    if lastRoundTime < startTime + 5:
+        sleep(startTime + 5 - lastRoundTime)
 
     bidAmount = 500_000  # 0.5 Algos
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
@@ -246,8 +246,8 @@ def test_second_bid():
     bidder2 = getTemporaryAccount(client)
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime:
-        sleep(startTime - lastRoundTime)
+    if lastRoundTime < startTime + 5:
+        sleep(startTime + 5 - lastRoundTime)
 
     bid1Amount = 500_000  # 0.5 Algos
     placeBid(client=client, appID=appID, bidder=bidder1, bidAmount=bid1Amount)
@@ -375,8 +375,8 @@ def test_close_no_bids():
     )
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime:
-        sleep(endTime - lastRoundTime)
+    if lastRoundTime < endTime + 5:
+        sleep(endTime + 5 - lastRoundTime)
 
     closeAuction(client, appID, seller)
 
@@ -426,8 +426,8 @@ def test_close_reserve_not_met():
     bidder = getTemporaryAccount(client)
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime:
-        sleep(startTime - lastRoundTime)
+    if lastRoundTime < startTime + 5:
+        sleep(startTime + 5 - lastRoundTime)
 
     bidAmount = 500_000  # 0.5 Algos
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
@@ -435,8 +435,8 @@ def test_close_reserve_not_met():
     bidderAlgosBefore = getBalances(client, bidder.getAddress())[0]
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime:
-        sleep(endTime - lastRoundTime)
+    if lastRoundTime < endTime + 5:
+        sleep(endTime + 5 - lastRoundTime)
 
     closeAuction(client, appID, seller)
 
@@ -493,8 +493,8 @@ def test_close_reserve_met():
     bidder = getTemporaryAccount(client)
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < startTime:
-        sleep(startTime - lastRoundTime)
+    if lastRoundTime < startTime + 5:
+        sleep(startTime + 5 - lastRoundTime)
 
     bidAmount = reserve
     placeBid(client=client, appID=appID, bidder=bidder, bidAmount=bidAmount)
@@ -502,8 +502,8 @@ def test_close_reserve_met():
     optInToAsset(client, nftID, bidder)
 
     _, lastRoundTime = getLastBlockTimestamp(client)
-    if lastRoundTime < endTime:
-        sleep(endTime - lastRoundTime)
+    if lastRoundTime < endTime + 5:
+        sleep(endTime + 5 - lastRoundTime)
 
     closeAuction(client, appID, seller)
 
