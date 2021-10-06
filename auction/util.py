@@ -89,11 +89,6 @@ def getAppGlobalState(
     return decodeState(appInfo["params"]["global-state"])
 
 
-def getAppAddress(appID: int) -> str:
-    toHash = b"appID" + appID.to_bytes(8, "big")
-    return encoding.encode_address(encoding.checksum(toHash))
-
-
 def getBalances(client: AlgodClient, account: str) -> Dict[int, int]:
     balances: Dict[int, int] = dict()
 

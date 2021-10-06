@@ -2,6 +2,7 @@ from typing import Tuple, List
 
 from algosdk.v2client.algod import AlgodClient
 from algosdk.future import transaction
+from algosdk.logic import get_application_address
 from algosdk import account, encoding
 
 from pyteal import compileTeal, Mode
@@ -11,7 +12,6 @@ from .contracts import approval_program, clear_state_program
 from .util import (
     waitForTransaction,
     fullyCompileContract,
-    getAppAddress,
     getAppGlobalState,
 )
 
@@ -132,7 +132,7 @@ def setupAuctionApp(
             of 1, while others are fractional NFTs with a greater total supply,
             so use a value that makes sense for the NFT being auctioned.
     """
-    appAddr = getAppAddress(appID)
+    appAddr = get_application_address(appID)
 
     suggestedParams = client.suggested_params()
 
@@ -189,7 +189,7 @@ def placeBid(client: AlgodClient, appID: int, bidder: Account, bidAmount: int) -
         bidder: The account providing the bid.
         bidAmount: The amount of the bid.
     """
-    appAddr = getAppAddress(appID)
+    appAddr = get_application_address(appID)
     appGlobalState = getAppGlobalState(client, appID)
 
     nftID = appGlobalState[b"nft_id"]
