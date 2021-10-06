@@ -1,0 +1,27 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.2
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Format
+          command: black --check .
+      - run:
+          name: Set up sandbox
+          command: ./sandbox up
+      - run:
+          name: Run tests
+          command: pytest
+
+workflows:
+  main:
+    jobs:
+      - build-and-test
