@@ -14,6 +14,8 @@ jobs:
       - run:
           name: Format
           command: black --check .
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
           name: Set up sandbox
           command: ./sandbox up
