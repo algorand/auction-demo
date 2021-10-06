@@ -3,9 +3,10 @@ from time import time, sleep
 import pytest
 
 from algosdk import account, encoding
+from algosdk.logic import get_application_address
 
 from .operations import createAuctionApp, setupAuctionApp, placeBid, closeAuction
-from .util import getBalances, getAppAddress, getAppGlobalState, getLastBlockTimestamp
+from .util import getBalances, getAppGlobalState, getLastBlockTimestamp
 from .testing.setup import getAlgodClient
 from .testing.resources import getTemporaryAccount, optInToAsset, createDummyAsset
 
@@ -94,7 +95,7 @@ def test_setup():
 
     assert actualState == expectedState
 
-    actualBalances = getBalances(client, getAppAddress(appID))
+    actualBalances = getBalances(client, get_application_address(appID))
     expectedBalances = {0: 2 * 100_000 + 2 * 1_000, nftID: nftAmount}
 
     assert actualBalances == expectedBalances
@@ -202,7 +203,7 @@ def test_first_bid():
 
     assert actualState == expectedState
 
-    actualBalances = getBalances(client, getAppAddress(appID))
+    actualBalances = getBalances(client, get_application_address(appID))
     expectedBalances = {0: 2 * 100_000 + 2 * 1_000 + bidAmount, nftID: nftAmount}
 
     assert actualBalances == expectedBalances
@@ -281,7 +282,7 @@ def test_second_bid():
 
     assert actualState == expectedState
 
-    actualAppBalances = getBalances(client, getAppAddress(appID))
+    actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 2 * 100_000 + 2 * 1_000 + bid2Amount, nftID: nftAmount}
 
     assert actualAppBalances == expectedAppBalances
@@ -331,7 +332,7 @@ def test_close_before_start():
 
     closeAuction(client, appID, seller)
 
-    actualAppBalances = getBalances(client, getAppAddress(appID))
+    actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
 
     assert actualAppBalances == expectedAppBalances
@@ -380,7 +381,7 @@ def test_close_no_bids():
 
     closeAuction(client, appID, seller)
 
-    actualAppBalances = getBalances(client, getAppAddress(appID))
+    actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
 
     assert actualAppBalances == expectedAppBalances
@@ -440,7 +441,7 @@ def test_close_reserve_not_met():
 
     closeAuction(client, appID, seller)
 
-    actualAppBalances = getBalances(client, getAppAddress(appID))
+    actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
 
     assert actualAppBalances == expectedAppBalances
@@ -507,7 +508,7 @@ def test_close_reserve_met():
 
     closeAuction(client, appID, seller)
 
-    actualAppBalances = getBalances(client, getAppAddress(appID))
+    actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
 
     assert actualAppBalances == expectedAppBalances
