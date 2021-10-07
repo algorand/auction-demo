@@ -1,10 +1,10 @@
 from time import time, sleep
 
 from algosdk import account, encoding
+from algosdk.logic import get_application_address
 from auction.operations import createAuctionApp, setupAuctionApp, placeBid, closeAuction
 from auction.util import (
     getBalances,
-    getAppAddress,
     getAppGlobalState,
     getLastBlockTimestamp,
 )
@@ -64,7 +64,7 @@ def simple_auction():
     _, lastRoundTime = getLastBlockTimestamp(client)
     if lastRoundTime < startTime + 5:
         sleep(startTime + 5 - lastRoundTime)
-    actualAppBalancesBefore = getBalances(client, getAppAddress(appID))
+    actualAppBalancesBefore = getBalances(client, get_application_address(appID))
     print("The smart contract now holds the following:", actualAppBalancesBefore)
     bidAmount = reserve
     bidderAlgosBefore = getBalances(client, bidder.getAddress())[0]
@@ -84,7 +84,7 @@ def simple_auction():
     print("Alice is closing out the auction....")
     closeAuction(client, appID, seller)
 
-    actualAppBalances = getBalances(client, getAppAddress(appID))
+    actualAppBalances = getBalances(client, get_application_address(appID))
     expectedAppBalances = {0: 0}
     print("The smart contract now holds the following:", actualAppBalances)
     assert actualAppBalances == expectedAppBalances
